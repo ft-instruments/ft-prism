@@ -1,0 +1,209 @@
+/* PRISM — the skin over ft.css. Light through glass: a near-black room, one
+   white beam coming in from the left, and on the far side of the glass the
+   spectrum it splits into. Modules are clear glass with a hairline of colour;
+   every module's accent is a band of the spectrum (exposed as --accent and
+   --accent-rgb for the canvases). Modulation is drawn as rays of the
+   source's colour on the knobs it moves. */
+
+:root {
+  --bg: #050508;
+  --red: #ff4d6d;    --red-rgb: 255, 77, 109;
+  --orange: #ffa53d; --orange-rgb: 255, 165, 61;
+  --yellow: #e8ff4a; --yellow-rgb: 232, 255, 74;
+  --green: #46ffb0;  --green-rgb: 70, 255, 176;
+  --cyan: #46c8ff;   --cyan-rgb: 70, 200, 255;
+  --violet: #a66bff; --violet-rgb: 166, 107, 255;
+  --white-rgb: 240, 240, 255;
+  --accent: #f4f4ff; --accent-rgb: var(--white-rgb);
+  --ink: #f2f2f8;
+  --dim: rgba(225, 225, 240, 0.6);
+  --faint: rgba(225, 225, 240, 0.32);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.17);
+  --glass-a: rgba(22, 22, 34, 0.52);
+  --glass-b: rgba(8, 8, 14, 0.76);
+  --well: rgba(0, 0, 0, 0.5);
+  --display: "Syne", "Geist", system-ui, sans-serif;
+  --cut: 14px;
+  --glow: 0;
+  --spectrum: linear-gradient(90deg, var(--red), var(--orange), var(--yellow), var(--green), var(--cyan), var(--violet));
+}
+
+/* ---------- the room: dark, with the refraction field (ui/refraction.ts) over it */
+.room { position: fixed; inset: 0; z-index: 0; pointer-events: none; background:
+  radial-gradient(1100px 650px at 12% -10%, #14121f, transparent 60%),
+  radial-gradient(1000px 700px at 105% 110%, #1a0f26, transparent 60%),
+  var(--bg); }
+#field { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.vignette {
+  background: radial-gradient(ellipse 130% 100% at 50% 30%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ---------- the name */
+.brand h1 {
+  font-family: var(--display); font-weight: 800; font-size: 27px; letter-spacing: 0.34em; padding-left: 0.04em;
+  color: #fff; text-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+}
+.brand .sub { position: relative; padding-top: 5px; }
+.brand .sub::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 2px; background: var(--spectrum); box-shadow: 0 0 8px rgba(255, 255, 255, 0.3); }
+.brand .sub b { color: var(--ink); }
+.mark { width: 46px; height: 36px; }
+.mark .glass { stroke: rgba(255, 255, 255, 0.9); stroke-width: 1.4; fill: rgba(255, 255, 255, 0.06); }
+.mark .ray-in { stroke: #fff; stroke-width: 1.6; filter: drop-shadow(0 0 3px #fff); }
+.mark .out { stroke-width: 1.5; }
+.mark .out.r { stroke: var(--red); } .mark .out.y { stroke: var(--yellow); } .mark .out.g { stroke: var(--green); }
+.mark .out.b { stroke: var(--cyan); } .mark .out.v { stroke: var(--violet); }
+
+/* ---------- glass modules with a hairline of their colour */
+.panel {
+  background:
+    linear-gradient(180deg, rgba(var(--accent-rgb), 0.07), transparent 70px),
+    linear-gradient(180deg, var(--glass-a), var(--glass-b));
+  border-color: rgba(var(--accent-rgb), 0.16);
+}
+.panel::after { opacity: 0.35; }
+.panel .head { border-bottom-color: rgba(var(--accent-rgb), 0.2); }
+.panel h2 { font-family: var(--display); font-weight: 700; letter-spacing: 0.14em; text-shadow: 0 0 14px rgba(var(--accent-rgb), 0.55); }
+.panel:hover { border-color: rgba(var(--accent-rgb), 0.38); }
+.viz {
+  background:
+    linear-gradient(var(--accent), var(--accent)) left 4px top 4px / 6px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) left 4px top 4px / 1px 6px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right 4px bottom 4px / 6px 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) right 4px bottom 4px / 1px 6px no-repeat,
+    radial-gradient(ellipse at 30% 40%, rgba(var(--accent-rgb), 0.07), transparent 70%),
+    var(--well);
+  border-color: rgba(var(--accent-rgb), 0.2);
+}
+.viz.tall { height: 150px; }
+
+/* one band of the spectrum per kind of module */
+.panel.o1     { --accent: var(--red);    --accent-rgb: var(--red-rgb); }
+.panel.o2     { --accent: var(--green);  --accent-rgb: var(--green-rgb); }
+.panel.o3     { --accent: var(--cyan);   --accent-rgb: var(--cyan-rgb); }
+.panel.src    { --accent: var(--violet); --accent-rgb: var(--violet-rgb); }
+.panel.voice  { --accent: #f4f4ff;       --accent-rgb: var(--white-rgb); }
+.panel.env    { --accent: var(--orange); --accent-rgb: var(--orange-rgb); }
+.panel.lfo    { --accent: var(--yellow); --accent-rgb: var(--yellow-rgb); }
+.panel.step   { --accent: var(--cyan);   --accent-rgb: var(--cyan-rgb); }
+.panel.arp    { --accent: var(--red);    --accent-rgb: var(--red-rgb); }
+.panel.matrix { --accent: #f4f4ff;       --accent-rgb: var(--white-rgb); }
+.panel.ins    { --accent: var(--red);    --accent-rgb: var(--red-rgb); }
+.panel.flt    { --accent: var(--green);  --accent-rgb: var(--green-rgb); }
+.panel.mfx    { --accent: var(--cyan);   --accent-rgb: var(--cyan-rgb); }
+.panel.out    { --accent: var(--violet); --accent-rgb: var(--violet-rgb); }
+.tabs[data-on="osc"]    { --tabc: var(--red); }
+.tabs[data-on="mod"]    { --tabc: var(--yellow); }
+.tabs[data-on="matrix"] { --tabc: #fff; }
+.tabs[data-on="fx"]     { --tabc: var(--cyan); }
+.tab-light::before { background: var(--spectrum); }
+
+/* dropdowns share a row instead of each taking the whole width */
+.panel .body > .picker, .panel .subgroup .picker { width: auto; flex: 1 1 40%; min-width: 110px; padding: 2px 4px 6px; }
+.panel .subgroup.stack .row { align-items: flex-end; gap: 2px 6px; }
+.panel .subgroup.stack .selector { padding-bottom: 6px; }
+.knob.hero .readout { font-size: 9.5px; letter-spacing: -0.02em; }
+.panel.step .body { align-items: center; }
+
+/* ---------- the macro strip */
+.macros {
+  --cut: 12px;
+  position: relative; display: grid; grid-template-columns: 150px repeat(8, minmax(0, 1fr)); align-items: center; gap: 4px;
+  padding: 8px 16px 6px; margin-bottom: 12px;
+  background: linear-gradient(180deg, var(--glass-a), var(--glass-b));
+  border: 1px solid var(--line);
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+  backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+.macros::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--spectrum); opacity: 0.5; }
+.macros .mlabel { display: flex; flex-direction: column; gap: 3px; }
+.macros .mlabel b { font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
+.macros .mlabel small { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.macros .knob { justify-self: center; }
+.macros .knob .label { font-size: 10px; letter-spacing: 0.06em; }
+.macros .knob.unnamed .label { color: var(--faint); }
+
+/* ---------- knobs: rays of modulation and the live dot */
+.knob .ray { fill: none; stroke-width: 2.2; stroke-linecap: round; opacity: 0.95; filter: drop-shadow(0 0 3px currentColor); }
+.knob .live { fill: #fff; stroke: none; filter: drop-shadow(0 0 4px #fff); }
+.knob.modulated .disc { stroke: rgba(255, 255, 255, 0.35); }
+
+/* ---------- the matrix */
+.mcols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; width: 100%; }
+.mrow {
+  display: grid; grid-template-columns: 26px minmax(0, 1.2fr) minmax(0, 1.5fr) 62px minmax(0, 1fr); align-items: center; gap: 8px;
+  padding: 2px 8px 2px 6px; border-left: 2px solid var(--src, rgba(255, 255, 255, 0.12));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--src, transparent) 9%, transparent), transparent 60%);
+  margin-bottom: 3px; transition: background 0.15s;
+}
+.mrow:not(.on) { opacity: 0.62; }
+.mrow:not(.on):hover { opacity: 1; }
+.mrow .idx { font-family: var(--mono); font-size: 10px; color: var(--faint); }
+.mrow.on .idx { color: var(--src); }
+.mrow.global .idx::after { content: " ◆"; }
+.mrow .picker .label, .mrow .knob .label { display: none; }
+.mrow .picker select { font-size: 11px; padding-top: 4px; padding-bottom: 4px; color: var(--ink); }
+.mrow .m-src select { color: var(--src); }
+.mrow .knob { width: 62px; flex-direction: row; gap: 4px; padding: 0; --accent: var(--src); }
+.mrow .knob .readout { width: 30px; text-align: left; font-size: 9.5px; }
+.mrow.mhead { border-left-color: transparent; background: none; opacity: 1; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); padding-bottom: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; width: 100%; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line-strong); font-family: var(--mono); font-size: 10px; color: var(--dim); }
+.legend i { display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: 2px; box-shadow: 0 0 6px currentColor; }
+.legend .note { color: var(--faint); margin-left: auto; }
+
+/* ---------- steppers */
+.grid { display: flex; flex-direction: column; gap: 4px; width: 100%; margin-bottom: 8px; }
+.grid .label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.grid canvas { width: 100%; height: 120px; display: block; touch-action: none; cursor: crosshair; border: 1px solid rgba(var(--accent-rgb), 0.25); background: var(--well); }
+
+/* ---------- header bits */
+.scopewrap { max-width: 220px; height: 50px; border-color: rgba(255, 255, 255, 0.14); }
+.scopewrap::after { display: none; }
+.power { color: #fff; background: rgba(255, 255, 255, 0.1); }
+.power.on { color: #08080c; background: #fff; box-shadow: 0 0 18px rgba(255, 255, 255, 0.5); }
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; background: linear-gradient(90deg, transparent var(--fill, 70%), rgba(255, 255, 255, 0.12) var(--fill, 70%)), var(--spectrum);
+}
+
+/* ---------- presets: one band per bank */
+[data-tag="user"]     { --tagc: #f4f4ff; }
+[data-tag="pad"]      { --tagc: var(--cyan); }
+[data-tag="keys"]     { --tagc: var(--orange); }
+[data-tag="pluck"]    { --tagc: var(--yellow); }
+[data-tag="lead"]     { --tagc: var(--red); }
+[data-tag="bass"]     { --tagc: #ff7ab0; }
+[data-tag="synth"]    { --tagc: var(--green); }
+[data-tag="arp"]      { --tagc: #7af0ff; }
+[data-tag="texture"]  { --tagc: var(--violet); }
+[data-tag="neon"]     { --tagc: #ff5ff0; }
+[data-tag="init"]     { --tagc: var(--dim); }
+[data-tag="edited"]   { --tagc: var(--yellow); }
+.browser .card { min-height: 56px; }
+.browser .card .mc { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.04em; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.browser .card.on .mc { color: rgba(0, 0, 0, 0.55); }
+
+/* ---------- the keyboard, read by the shared keyboard.ts */
+#keyboard {
+  --key-rgb: 240, 240, 255; --key-alt-rgb: var(--violet-rgb);
+  --key-white-a: #15151d; --key-white-b: #2a2a38; --key-black: #040406;
+}
+
+@media (max-width: 1100px) {
+  :where(:root:not(.in-plugin)) .macros { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  :where(:root:not(.in-plugin)) .macros .mlabel { grid-column: 1 / -1; flex-direction: row; gap: 10px; align-items: baseline; }
+  :where(:root:not(.in-plugin)) .mcols { grid-template-columns: 1fr; }
+}
+
+/* inside the plugin the host owns the audio device and the MIDI inputs */
+.in-plugin .power-wrap, .in-plugin .midi { display: none; }
+
+/* and the page is laid out at one width and scaled to the window's width
+   (src/plugin.ts sets --ui-scale); a window shorter than the tab scrolls.
+   #app is taken out of the flow so the scrollable height is its scaled
+   height, not its laid-out one */
+.in-plugin body { overflow-x: hidden; }
+.in-plugin #app {
+  position: absolute; top: 0; left: 0;
+  width: var(--ui-w, 1360px); max-width: none; margin: 0;
+  transform: scale(var(--ui-scale, 1)); transform-origin: 0 0;
+}
