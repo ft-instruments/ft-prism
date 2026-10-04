@@ -174,13 +174,13 @@ input[type="range"]::-webkit-slider-runnable-track {
 [data-tag="bass"]     { --tagc: #ff7ab0; }
 [data-tag="synth"]    { --tagc: var(--green); }
 [data-tag="arp"]      { --tagc: #7af0ff; }
+[data-tag="seq"]      { --tagc: color-mix(in srgb, var(--cyan) 45%, var(--violet)); }
+[data-tag="drum"]     { --tagc: #ff8a5c; }
+[data-tag="fx"]       { --tagc: color-mix(in srgb, var(--green) 50%, var(--cyan)); }
 [data-tag="texture"]  { --tagc: var(--violet); }
 [data-tag="neon"]     { --tagc: #ff5ff0; }
 [data-tag="init"]     { --tagc: var(--dim); }
 [data-tag="edited"]   { --tagc: var(--yellow); }
-.browser .card { min-height: 56px; }
-.browser .card .mc { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.04em; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.browser .card.on .mc { color: rgba(0, 0, 0, 0.55); }
 
 /* ---------- the keyboard, read by the shared keyboard.ts */
 #keyboard {

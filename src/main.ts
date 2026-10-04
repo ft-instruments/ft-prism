@@ -484,7 +484,7 @@ window.addEventListener('keydown', (e) => {
 
 const CATEGORY_NAMES: Record<string, string> = {
   user: 'yours', pad: 'pads', keys: 'keys', pluck: 'plucks & bells', lead: 'leads', bass: 'bass', synth: 'synths',
-  arp: 'arps & sequences', texture: 'textures', neon: 'neon', init: 'init',
+  arp: 'arps', seq: 'sequences', drum: 'drums & perc', texture: 'textures', fx: 'fx', neon: 'neon', init: 'init',
 };
 const CATEGORY_ORDER = Object.keys(CATEGORY_NAMES);
 const catRank = (tag: string) => { const i = CATEGORY_ORDER.indexOf(tag); return i < 0 ? CATEGORY_ORDER.length : i; };
@@ -583,7 +583,9 @@ function buildBrowser(): void {
   const counts = new Map<string, number>();
   for (const p of browseOrder) counts.set(p.tag, (counts.get(p.tag) ?? 0) + 1);
   if (!userPresets.length) {
-    const h = document.createElement('div'); h.className = 'cat'; h.dataset.tag = 'user'; h.textContent = CATEGORY_NAMES.user;
+    const h = document.createElement('div'); h.className = 'cat'; h.dataset.tag = 'user';
+    h.innerHTML = '<span class="nm"></span>';
+    h.querySelector('.nm')!.textContent = CATEGORY_NAMES.user;
     const empty = document.createElement('div'); empty.className = 'empty';
     empty.textContent = 'nothing saved yet — shape a sound, then “save current” (⌘S)';
     listEl.append(h, empty); heads.set('user', h);
@@ -607,16 +609,19 @@ function buildBrowser(): void {
       lastTag = p.tag;
       const h = document.createElement('div');
       h.className = 'cat'; h.dataset.tag = p.tag;
-      h.textContent = CATEGORY_NAMES[p.tag] ?? p.tag;
+      h.innerHTML = '<span class="nm"></span><span class="count"></span>';
+      h.querySelector('.nm')!.textContent = CATEGORY_NAMES[p.tag] ?? p.tag;
+      h.querySelector('.count')!.textContent = String(counts.get(p.tag) ?? 0);
       listEl.append(h); heads.set(p.tag, h);
     }
     const card = document.createElement('button');
     card.type = 'button'; card.className = 'card'; card.dataset.tag = p.tag;
     card.dataset.search = `${p.name} ${CATEGORY_NAMES[p.tag] ?? p.tag} ${(p.macros ?? []).join(' ')}`.toLowerCase();
-    card.innerHTML = `<span class="nm"></span><span class="tg"></span><span class="mc"></span>`;
+    // one line per card; the macros show on hover (and are still searched)
+    card.title = p.macros?.length ? `${p.name} — ${p.macros.join(' · ')}` : p.name;
+    card.innerHTML = `<span class="nm"></span><span class="tg"></span>`;
     card.querySelector<HTMLElement>('.nm')!.textContent = p.name;
     card.querySelector<HTMLElement>('.tg')!.textContent = CATEGORY_NAMES[p.tag] ?? p.tag;
-    card.querySelector<HTMLElement>('.mc')!.textContent = (p.macros ?? []).join(' · ');
     card.addEventListener('click', () => { loadPreset(p.name); closeBrowser(); });
     if (p.tag === 'user') {
       const del = document.createElement('span');

@@ -150,25 +150,33 @@ sounds lush.
 
 ## Presets
 
-There are 97 presets, grouped the way Mycelia's are. The names are Prism's
+There are 172 presets, grouped the way Mycelia's are. The names are Prism's
 own (light, glass, ice, sky).
 
 | category | presets |
 |---|---|
-| pads | Halo · Polar Night · Iridescence · Opal Choir · Daybreak · Ice Cathedral · Diffraction · Nimbus · Long Exposure · Prism Strings · Parhelion · Ether · Lumen Bed · Starlit Fifths · Frostline |
-| keys | Hushed Keys · Velvet Prism · Crystal Tines · Lightbox Organ · Quartz Keys · Upright Mist · Music Box · Halation Keys · Wurli Ray · Lens Clav |
-| plucks & bells | Shard Pluck · Ring Bells · Dewlight · Kalimba Prism · Ice Harp · Starfield · Chime Tree · Bell Tower · Synth Harp · Spark Pluck · Glass Marimba |
-| leads | Ember Lead · Saw Light · Sine Whistle · Square Song · Formant Lead · Sync Beam · Hollow Flute · Overdrive Prism · Solar Lead · Glass Lead |
-| bass | Growl · Reese · Neuro · Wobble · Sub Pressure · Round Sub · Pluck Bass · Acid Prism · Fold Bass · FM Bass · Deep Field |
-| synths | Supersaw · Trance Gate · Brass Light · Stab Chord · Pulse Poly · Spectral Hoover · Pumping Saws · Polysync Stack |
-| arps & sequences | Crystal Arp · Pulse Runner · Felt Steps · Chord Pulse · Daylight Run · Light Sequence · Bubble Line · Glass Ostinato · Night Drive · Swing Lights · Sequencer Dream · Twinkle Field |
-| textures | Wind Glass · Ice Field · Photon Rain · Deep Space · Static Choir · Glacier · Ionosphere · Tidal Light |
+| pads | Halo · Polar Night · Iridescence · Opal Choir · Daybreak · Ice Cathedral · Diffraction · Nimbus · Long Exposure · Prism Strings · Parhelion · Ether · Lumen Bed · Starlit Fifths · Frostline · Spectral Bloom · Warm Analog · Glass Swell · Comb Haze · Vowel Drift · Dusk Organ |
+| keys | Hushed Keys · Velvet Prism · Crystal Tines · Lightbox Organ · Quartz Keys · Upright Mist · Music Box · Halation Keys · Wurli Ray · Lens Clav · Electric Felt · FM Piano · Harpsichord Prism · Vowel Organ · Celeste Glass · Toy Keys |
+| plucks & bells | Shard Pluck · Ring Bells · Dewlight · Kalimba Prism · Ice Harp · Starfield · Chime Tree · Bell Tower · Synth Harp · Spark Pluck · Glass Marimba · Steel Pan · Comb String · Koto Shift · Pizzicato Light · Fold Marimba · Supersaw Pluck |
+| leads | Ember Lead · Saw Light · Sine Whistle · Square Song · Formant Lead · Sync Beam · Hollow Flute · Overdrive Prism · Solar Lead · Glass Lead · Theremin Ray · Chip Lead · Talking Lead · Scream Sync · Glide Saw |
+| bass | Growl · Reese · Neuro · Wobble · Sub Pressure · Round Sub · Pluck Bass · Acid Prism · Fold Bass · FM Bass · Deep Field · Octave Bounce · Talk Bass · 808 Boom · Rubber FM · Comb Bass · Hoover Bass |
+| synths | Supersaw · Trance Gate · Brass Light · Stab Chord · Pulse Poly · Spectral Hoover · Pumping Saws · Polysync Stack · Juno Chords · Brass Section · Gated Strings · Sidechain Pad · Shimmer Stack |
+| arps | Crystal Arp · Pulse Runner · Felt Steps · Chord Pulse · Daylight Run · Glass Ostinato · Night Drive · Swing Lights · Twinkle Field · Cascade Down · Triplet Bells · Pumped Stabs · Swing Felt · Latch Garden · Octave Climb |
+| sequences | Light Sequence · Bubble Line · Sequencer Dream · Step Pluck · Berlin Steps · Polymeter Prism · Acid Steps · Talking Steps · Euclid Bells · Gated Chords · Spectral Sequence · Transposer · Fold Sequence |
+| drums & perc | Spectral Kick · Punch Kick · Snare Crack · Clap Burst · Closed Hat · Open Hat · Ride Metal · Rimshot · Cowbell 808 · Tom Prism · Conga Glass · Seed Shaker · Pattern Kit · Breakbeat Kit · Hand Drums |
+| textures | Wind Glass · Ice Field · Photon Rain · Deep Space · Static Choir · Glacier · Ionosphere · Tidal Light · Spectral Swarm · Frozen Comb · Drone Field |
+| fx | Spectral Riser · Downlifter · Laser Shot · Sonar · Siren · Glitch Burst · Impact Boom |
 | neon | Spiral Rain · Broken Spectrum · Shepard Ascent · Android Vowel · Hologram · Data Ghost · Laser Grid · Blade Lights · Cyber Choir · Glitch Steps · Synthetic Heart |
 
 - **Macros:** every preset wires and names its macros.
-- **Sequences:** the stepper sequences (Light Sequence, Sequencer Dream,
-  Data Ghost) send stepper 1 to pitch at amount 1/3, so each cell is one
-  semitone.
+- **Sequences:** the stepper sequences send a stepper to pitch at amount
+  1/3, so each cell is one semitone. Most of them, and the stepper drums
+  (Pattern Kit), also send a unipolar ramp LFO, synced to the sixteenth and
+  restarted by the note, negatively to amp: every step is struck again and
+  dies away, so a held note plays the pattern from the moment you press it.
+- **Drums:** play them as single hits, or hold notes on the ones with the arp
+  on (Seed Shaker, Breakbeat Kit, Hand Drums). Pattern Kit plays a whole beat
+  from one held note.
 - **Shepard Ascent** is a real endless riser: three octaves climb on a ramp
   while the bottom fades in and the top fades out, and the level holds
   within 0.6 dB across the wrap.
@@ -207,7 +215,7 @@ volume and preset browser are always in reach.
 
 ## Checks
 
-- `npm run render`: all 97 presets with no NaNs. Peaks fall between −1 and
+- `npm run render`: all 172 presets with no NaNs. Peaks fall between −0.3 and
   −9 dBFS on the test phrase.
 - `npm run render levels`: re-measures loudness and rewrites the gains.
 - `npm run render hash`: the matrix invariant, all presets identical.
