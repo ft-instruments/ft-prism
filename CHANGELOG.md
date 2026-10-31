@@ -9,6 +9,7 @@ All notable changes to ft-prism. Format: [Keep a Changelog](https://keepachangel
 
 ### Changed
 - `plugin/CMakeLists.txt`: `PRISM_INSTALL` option (off in CI) and `NEEDS_WEBVIEW2` for Windows.
+- Linux: the editor's WebView renders on the GPU (`plugin/patch-juce.cmake` flips JUCE's WebKit acceleration policy; the editor forces shared-memory frames so it also works on NVIDIA). JUCE 8.0.9 to 8.0.15.
 
 ## [0.1.0] - 2026-10-04
 
