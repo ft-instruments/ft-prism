@@ -19,8 +19,10 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
 include(FetchContent)
 FetchContent_Declare(JUCE
   GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-  GIT_TAG 8.0.9
-  GIT_SHALLOW TRUE)
+  GIT_TAG 8.0.15
+  GIT_SHALLOW TRUE
+  # let the Linux WebView use the GPU (see patch-juce.cmake)
+  PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/patch-juce.cmake)
 FetchContent_MakeAvailable(JUCE)
 
 set(PRISM_FORMATS VST3 Standalone)

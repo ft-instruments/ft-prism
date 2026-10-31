@@ -18,6 +18,17 @@ const char* mimeFor(const juce::String& file) {
   return "application/octet-stream";
 }
 
+// Linux: the WebView renders on the GPU (patch-juce.cmake), but on NVIDIA
+// WebKit cannot share GPU buffers with the window (GBM fails) and shows
+// nothing; handing frames over in shared memory works everywhere. Set before
+// the WebView's helper process starts, which inherits it. A value the user
+// set is kept.
+void webkitEnv() {
+ #if JUCE_LINUX
+  setenv("WEBKIT_DMABUF_RENDERER_FORCE_SHM", "1", 0);
+ #endif
+}
+
 juce::var valuesObject(const std::array<float, NUM_PARAMS>& v) {
   auto* o = new juce::DynamicObject();
   for (int i = 0; i < NUM_PARAMS; i++) o->setProperty(PARAMS[i].id, v[(size_t)i]);
@@ -28,7 +39,7 @@ juce::var valuesObject(const std::array<float, NUM_PARAMS>& v) {
 
 PrismEditor::PrismEditor(PrismProcessor& p)
   : AudioProcessorEditor(p), proc(p),
-    web(juce::WebBrowserComponent::Options {}
+    web((webkitEnv(), juce::WebBrowserComponent::Options {})
           .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
           .withNativeIntegrationEnabled()
           .withKeepPageLoadedWhenBrowserIsHidden()
