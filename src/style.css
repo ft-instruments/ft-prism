@@ -23,7 +23,7 @@
   --glass-a: rgba(22, 22, 34, 0.52);
   --glass-b: rgba(8, 8, 14, 0.76);
   --well: rgba(0, 0, 0, 0.5);
-  --display: "Syne", "Geist", system-ui, sans-serif;
+  --display: "Syne", "Geist", "FT Symbols", system-ui, sans-serif;
   --cut: 14px;
   --glow: 0;
   --spectrum: linear-gradient(90deg, var(--red), var(--orange), var(--yellow), var(--green), var(--cyan), var(--violet));

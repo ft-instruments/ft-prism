@@ -9,6 +9,7 @@ PRISM is licensed under the [AGPL v3](LICENSE). What it includes or builds on:
 | [Syne](https://gitlab.com/bonjour-monde/fonderie/syne-typeface) | display font, `src/fonts/` (Latin subset) | SIL OFL 1.1, [`src/fonts/OFL-syne.txt`](src/fonts/OFL-syne.txt) |
 | [Geist](https://github.com/vercel/geist-font) | UI font, `src/fonts/` (Latin subset) | SIL OFL 1.1, [`src/fonts/OFL-geist.txt`](src/fonts/OFL-geist.txt) |
 | [Geist Mono](https://github.com/vercel/geist-font) | monospace font, `src/fonts/` (Latin subset) | SIL OFL 1.1, [`src/fonts/OFL-geist-mono.txt`](src/fonts/OFL-geist-mono.txt) |
+| [Noto Sans Symbols](https://github.com/notofonts/symbols) 1 and 2 | arrows and key/geometric symbols, subset into `src/fonts/ft-symbols.woff2` | SIL OFL 1.1, [`src/fonts/OFL-noto-symbols.txt`](src/fonts/OFL-noto-symbols.txt) |
 
 Build-time only (nothing of it ships): Vite, TypeScript and `@types/node`, plus
 their dependencies, all MIT, ISC, BSD or Apache-2.0.

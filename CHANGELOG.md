@@ -12,6 +12,9 @@ All notable changes to ft-prism. Format: [Keep a Changelog](https://keepachangel
 - `plugin/CMakeLists.txt`: `PRISM_INSTALL` option (off in CI) and `NEEDS_WEBVIEW2` for Windows.
 - Linux: the editor's WebView renders on the GPU (`plugin/patch-juce.cmake` flips JUCE's WebKit acceleration policy; the editor forces shared-memory frames so it also works on NVIDIA). JUCE 8.0.9 to 8.0.15.
 
+### Fixed
+- Linux: arrows, `⌘` and `▪` showed as tofu because the bundled Latin fonts do not cover them; a small `FT Symbols` fallback (subset of Noto Sans Symbols 1/2, SIL OFL) now ships with the UI.
+
 ## [0.1.0] - 2026-10-04
 
 First tracked release. The version file already said 0.1.0, so this tags the project as it stands today.
