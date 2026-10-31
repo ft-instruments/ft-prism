@@ -8,6 +8,7 @@ All notable changes to ft-prism. Format: [Keep a Changelog](https://keepachangel
 - AGPL-3.0 license, a Download section in the README and a GitHub Actions workflow that builds the plugin for macOS, Windows and Linux.
 
 ### Changed
+- Fonts (Syne, Geist, Geist Mono; SIL OFL) are bundled in `src/fonts/` instead of loaded from Google Fonts: the UI and the plugin make no network connections.
 - `plugin/CMakeLists.txt`: `PRISM_INSTALL` option (off in CI) and `NEEDS_WEBVIEW2` for Windows.
 - Linux: the editor's WebView renders on the GPU (`plugin/patch-juce.cmake` flips JUCE's WebKit acceleration policy; the editor forces shared-memory frames so it also works on NVIDIA). JUCE 8.0.9 to 8.0.15.
 

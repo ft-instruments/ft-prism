@@ -44,8 +44,19 @@ Unzip and copy the plugin to your plugin folder (macOS
 signed or notarized: on macOS right-click the app and choose Open the first
 time (or run `xattr -dr com.apple.quarantine` on the files); on Windows
 SmartScreen asks once. The Windows editor needs the WebView2 runtime
-(included in Windows 11); on Linux it needs WebKitGTK. The UI loads its fonts
-from Google Fonts, so without a connection it falls back to system fonts.
+(included in Windows 11); on Linux it needs WebKitGTK.
+
+## Privacy
+
+PRISM makes no network connections: no telemetry, no update check, no
+analytics, no accounts. The fonts are bundled ([`src/fonts/`](src/fonts/)),
+the plugin serves its UI from memory (`PluginEditor.cpp`, a JUCE resource
+provider), and JUCE is built without its networking code
+(`JUCE_USE_CURL=0`). Your saved presets are plain files on your disk. To
+check it yourself, search the source for `fetch(`, `XMLHttpRequest`,
+`WebSocket` and `http` (the only hits are the SVG namespace string and the
+local test scripts in `scripts/`, which talk to `127.0.0.1`), or watch the
+app with Little Snitch or `nettop`.
 
 ## Signal path
 
@@ -321,6 +332,7 @@ run the null test.
 
 PRISM is free software under the [GNU AGPL v3](LICENSE). The plugin is built
 on [JUCE](https://juce.com), which is itself AGPLv3 (or commercial), so the
-whole thing is distributed under the AGPL: you can use it for anything,
+whole thing is distributed under the AGPL (the bundled fonts keep their own
+[SIL OFL](src/fonts/); see [THIRD-PARTY.md](THIRD-PARTY.md)): you can use it for anything,
 including music you sell, and change it and share it, as long as a modified
 version you distribute comes with its source under the same license.
