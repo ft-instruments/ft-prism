@@ -4,6 +4,12 @@ All notable changes to ft-prism. Format: [Keep a Changelog](https://keepachangel
 
 ## Unreleased
 
+### Added
+- AGPL-3.0 license, a Download section in the README and a GitHub Actions workflow that builds the plugin for macOS, Windows and Linux.
+
+### Changed
+- `plugin/CMakeLists.txt`: `PRISM_INSTALL` option (off in CI) and `NEEDS_WEBVIEW2` for Windows.
+
 ## [0.1.0] - 2026-10-04
 
 First tracked release. The version file already said 0.1.0, so this tags the project as it stands today.

@@ -25,6 +25,9 @@ FetchContent_Declare(JUCE
   PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/patch-juce.cmake)
 FetchContent_MakeAvailable(JUCE)
 
+# Copy the built plugins into the user's plugin folders (off in CI).
+option(PRISM_INSTALL "Install the plugins after building" ON)
+
 set(PRISM_FORMATS VST3 Standalone)
 if(APPLE)
   list(APPEND PRISM_FORMATS AU)
@@ -46,7 +49,8 @@ juce_add_plugin(Prism
   NEEDS_WEB_BROWSER TRUE
   VST3_CATEGORIES Instrument Synth
   AU_MAIN_TYPE kAudioUnitType_MusicDevice
-  COPY_PLUGIN_AFTER_BUILD TRUE)
+  NEEDS_WEBVIEW2 TRUE
+  COPY_PLUGIN_AFTER_BUILD ${PRISM_INSTALL})
 
 target_sources(Prism PRIVATE
   Source/PluginProcessor.cpp

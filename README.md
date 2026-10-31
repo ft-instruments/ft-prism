@@ -26,6 +26,27 @@ channel pressure, sustain CC64), the on-screen keys, or the computer keyboard
 - **Refract:** nudges the sounding oscillators' spectral controls and sometimes changes a warp.
 - **Copy:** puts the patch JSON on the clipboard.
 
+## Download
+
+Builds of the VST3, the AU (macOS only) and the standalone app for macOS,
+Windows and Linux are attached to each
+[release](https://github.com/filipefthomaz-gd/ft-prism/releases).
+
+| | Standalone | VST3 | AU |
+|---|---|---|---|
+| macOS (Apple silicon + Intel) | yes | yes | yes |
+| Windows | yes | yes | no |
+| Linux | yes | yes | no |
+
+Unzip and copy the plugin to your plugin folder (macOS
+`~/Library/Audio/Plug-Ins/{VST3,Components}`, Windows
+`C:\Program Files\Common Files\VST3`, Linux `~/.vst3`). The builds are not
+signed or notarized: on macOS right-click the app and choose Open the first
+time (or run `xattr -dr com.apple.quarantine` on the files); on Windows
+SmartScreen asks once. The Windows editor needs the WebView2 runtime
+(included in Windows 11); on Linux it needs WebKitGTK. The UI loads its fonts
+from Google Fonts, so without a connection it falls back to system fonts.
+
 ## Signal path
 
 ```
@@ -295,3 +316,11 @@ run the null test.
   starts when you play, not on the beat), as in Mycelia.
 - **Two presets null only to −73 / −83 dB** against the C++ engine (see the
   plugin section): Glitch Steps and Hologram.
+
+## License
+
+PRISM is free software under the [GNU AGPL v3](LICENSE). The plugin is built
+on [JUCE](https://juce.com), which is itself AGPLv3 (or commercial), so the
+whole thing is distributed under the AGPL: you can use it for anything,
+including music you sell, and change it and share it, as long as a modified
+version you distribute comes with its source under the same license.
