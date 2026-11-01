@@ -20,6 +20,10 @@
    Noto Sans Symbols 2 (SIL OFL). */
 @font-face { font-family: "FT Symbols"; font-weight: 400; font-display: swap;
   src: url("./fonts/ft-symbols.woff2") format("woff2"); }
+/* Greek and math signs (φ π Σ θ ∈ ≤ ≥ ↦) from Noto Sans Math (SIL OFL), same family. */
+@font-face { font-family: "FT Symbols"; font-weight: 400; font-display: swap;
+  src: url("./fonts/ft-math.woff2") format("woff2");
+  unicode-range: U+03A3, U+03B8, U+03C0, U+03C6, U+2208, U+2264-2265, U+21A6; }
 
 :root {
   --bg: #05090a;
