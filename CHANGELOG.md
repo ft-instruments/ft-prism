@@ -25,6 +25,6 @@ First tracked release. The version file already said 0.1.0, so this tags the pro
 - A spectral synth where the spectrum (partials, amplitudes and phases) is the instrument.
 - Compact preset browser and a second bank of 75 presets.
 
-[Unreleased]: https://github.com/filipefthomaz-gd/ft-prism/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/filipefthomaz-gd/ft-prism/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/filipefthomaz-gd/ft-prism/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ft-instruments/ft-prism/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/ft-instruments/ft-prism/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/ft-instruments/ft-prism/releases/tag/v0.1.0

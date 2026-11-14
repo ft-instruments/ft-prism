@@ -30,7 +30,7 @@ channel pressure, sustain CC64), the on-screen keys, or the computer keyboard
 
 Builds of the VST3, the AU (macOS only) and the standalone app for macOS,
 Windows and Linux are attached to each
-[release](https://github.com/filipefthomaz-gd/ft-prism/releases).
+[release](https://github.com/ft-instruments/ft-prism/releases).
 
 | | Standalone | VST3 | AU |
 |---|---|---|---|
@@ -329,6 +329,8 @@ run the null test.
   plugin section): Glitch Steps and Hologram.
 
 ## License
+
+Copyright (C) 2026 Filipe F. Thomaz.
 
 PRISM is free software under the [GNU AGPL v3](LICENSE). The plugin is built
 on [JUCE](https://juce.com), which is itself AGPLv3 (or commercial), so the
