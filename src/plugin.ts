@@ -15,18 +15,37 @@ const backend = (): JuceBackend | undefined =>
   (window as unknown as { __JUCE__?: { backend?: JuceBackend } }).__JUCE__?.backend;
 
 /**
- * The width the page is laid out at inside the plugin (the full desktop
- * layout), and the height of its tallest tab (light), which only sets the
- * editor's default size (PluginEditor.h). The page is scaled to the
- * window's width and scrolls when the window is shorter than the tab.
+ * The size the page is laid out at inside the plugin: the full desktop
+ * width, 16:10 like the rest of the family. The page is scaled as a whole to
+ * fit the editor window (PluginEditor.cpp keeps this aspect on first open).
+ * A tab taller than this scrolls.
  */
-export const UI_W = 1360, UI_H = 1530;
+export const UI_W = 1360, UI_H = 850;
 
-/** Scale the laid-out page to the window's width. */
+/** Scale the laid-out page to the window, centred when the window is wider than the design. */
 function fitToWindow(): void {
+  const s = Math.min(window.innerWidth / UI_W, window.innerHeight / UI_H);
   const root = document.documentElement.style;
   root.setProperty('--ui-w', `${UI_W}px`);
-  root.setProperty('--ui-scale', String(window.innerWidth / UI_W));
+  root.setProperty('--ui-scale', String(s));
+  root.setProperty('--ui-x', `${Math.max(0, (window.innerWidth - UI_W * s) / 2)}px`);
+}
+
+/** A transform doesn't change the layout, so tell the CSS the page's height: it trims the scroll range to the scaled page. */
+function trackHeight(): void {
+  const app = document.querySelector<HTMLElement>('#app');
+  if (!app) return;
+  const set = () => document.documentElement.style.setProperty('--ui-h', `${app.offsetHeight}px`);
+  new ResizeObserver(set).observe(app);
+  set();
+}
+
+/** Dev only (`npm run dev`, then open /?plugin): lay the page out as the plugin does, in a browser tab. Audio stays the browser's. */
+export function previewPluginLayout(): void {
+  document.documentElement.classList.add('in-plugin', 'preview');
+  fitToWindow();
+  trackHeight();
+  window.addEventListener('resize', fitToWindow);
 }
 
 /** True when the page is the plugin's editor. */
@@ -63,6 +82,7 @@ export class PluginSynth {
   constructor() {
     backend()!.addEventListener('prism', (m) => this.receive(m as FromPlugin));
     fitToWindow();
+    trackHeight();
     window.addEventListener('resize', fitToWindow);
   }
 

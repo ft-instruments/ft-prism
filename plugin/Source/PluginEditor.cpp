@@ -47,20 +47,16 @@ PrismEditor::PrismEditor(PrismProcessor& p)
           .withEventListener("prism", [this](const juce::var& msg) { onMessage(msg); })) {
   for (int i = 0; i < NUM_PARAMS; i++) ids[PARAMS[i].id] = i;
   addAndMakeVisible(web);
-  // the page is laid out UI_W wide (src/plugin.ts), scaled to this width, and scrolls
-  // when this is shorter than the tab; UI_H, the tallest tab, only caps the height
+  // the page is laid out at UI_W x UI_H (src/plugin.ts) and scaled to whatever size this is
   setResizable(true, true);
-  setResizeLimits(UI_W / 2, 360, UI_W * 2, UI_H * 2);
+  setResizeLimits(UI_W / 2, UI_H / 2, UI_W * 2, UI_H * 2);
   if (proc.editorW > 0 && proc.editorH > 0) setSize(proc.editorW, proc.editorH);
   else {
-    // first open: as wide as the design (or the screen allows, with room for the
-    // host's window around it), and as tall as fits, up to the tallest tab
-    int w = UI_W, h = UI_H;
-    if (auto* d = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()) {
-      w = std::min(UI_W, juce::roundToInt(d->userArea.getWidth() * 0.9));
-      h = std::min(juce::roundToInt(UI_H * (double)w / UI_W), juce::roundToInt(d->userArea.getHeight() * 0.85));
-    }
-    setSize(w, h);
+    // first open: as large as fits on the screen with room for the host's window around it
+    double s = 1;
+    if (auto* d = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay())
+      s = std::min({ 1.0, d->userArea.getWidth() * 0.9 / UI_W, d->userArea.getHeight() * 0.8 / UI_H });
+    setSize(juce::roundToInt(UI_W * s), juce::roundToInt(UI_H * s));
   }
   sized = true;
   web.goToURL(juce::WebBrowserComponent::getResourceProviderRoot());
