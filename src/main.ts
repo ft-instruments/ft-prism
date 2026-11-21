@@ -1,5 +1,5 @@
 import { Synth } from './audio.ts';
-import { PluginSynth, inPlugin } from './plugin.ts';
+import { PluginSynth, inPlugin, previewPluginLayout } from './plugin.ts';
 import type { WorkletStats } from './worklet/processor.ts';
 import { MidiInput } from './midi.ts';
 import { KeyboardView, ComputerKeys, FIRST, LAST } from './keyboard.ts';
@@ -20,6 +20,10 @@ const $ = <T extends HTMLElement>(sel: string): T => document.querySelector(sel)
 const plugin = inPlugin() ? new PluginSynth() : null;
 const synth: Synth | PluginSynth = plugin ?? new Synth();
 document.documentElement.classList.toggle('in-plugin', !!plugin);
+// dev only: ?plugin shows the plugin's layout in a browser tab (real audio, resize the window to see it scale)
+if (import.meta.env.DEV && !plugin && new URLSearchParams(location.search).has('plugin')) previewPluginLayout();
+// in the plugin every page fits whole, so nothing folds: modules stay open whatever their level
+const NO_FOLD = document.documentElement.classList.contains('in-plugin');
 const values: ParamValues = defaults();
 const controls = new Map<string, Control>();
 
@@ -256,6 +260,19 @@ const LAYOUT: PanelSpec[] = [
   { tab: 'fx', title: 'squash', sub: 'three-band up + down · out', cls: 'out', span: 3, viz: 'squash', groups: [{ hero: true, ids: ['sqDepth', 'volume'] }, { ids: ['sqTime', 'sqUp', 'sqDown', 'warmth', 'eqLow', 'eqHigh'] }] },
 ];
 
+// In the plugin the page is laid out at 1360x850, so the four dense tabs are split into seven that each
+// fit one or two rows. In a browser tab the original four stay.
+const IN_PLUGIN_LAYOUT = document.documentElement.classList.contains('in-plugin');
+if (IN_PLUGIN_LAYOUT) {
+  const to: Record<string, string> = {
+    'amp env': 'mod', 'env 2': 'mod', 'env 3': 'mod', 'env 4': 'mod',
+    'lfo 1': 'mod', 'lfo 2': 'mod', 'lfo 3': 'mod', 'lfo 4': 'mod',
+    'arp': 'pat', 'step 1': 'pat', 'step 2': 'pat',
+    'insert A': 'fx', 'filter 1': 'fx', 'filter 2': 'fx', 'insert B': 'fx',
+  };
+  for (const spec of LAYOUT) spec.tab = to[spec.title] ?? spec.tab;
+}
+
 const vizzes: Viz[] = [];
 const redrawViz = () => { for (const v of vizzes) v.redraw(); };
 
@@ -267,6 +284,7 @@ function onParam(id: string, v: number): void {
   if (def.tab) stepGrids[def.tab === 's1' ? 0 : 1]?.set(def.idx!, v);
   if (id.endsWith('Level')) refreshLevels();
   if (id === 'volume') setMaster(v);
+  refreshStates();
   if (/^m\d+(Src|Dst|Amt|Via)$/.test(id)) refreshMods();
   else if (id.endsWith('Len')) refreshSteps();
   redrawViz();
@@ -280,7 +298,7 @@ function refreshLevels(expandOn = false): void {
     const off = lvl <= 0 && !modulated;
     meta.textContent = off ? 'off' : modulated && lvl <= 0 ? 'mod' : `${Math.round(lvl * 100)}%`;
     panel.classList.toggle('off', off);
-    if (expandOn) panel.classList.toggle('collapsed', off);
+    if (expandOn && !NO_FOLD) panel.classList.toggle('collapsed', off);
   }
 }
 function matrixReaches(levelId: string): boolean {
@@ -295,6 +313,7 @@ function refreshSteps(): void {
 }
 
 const panelsEl = $('#panels');
+const panelByTitle = new Map<string, HTMLElement>();
 const foldPanels = new Map<string, { panel: HTMLElement; meta: HTMLElement }>();
 
 function makePanel(spec: { title: string; sub?: string; cls: string; span: number; tab: string }): { panel: HTMLElement; head: HTMLElement; body: HTMLElement } {
@@ -316,11 +335,12 @@ function makePanel(spec: { title: string; sub?: string; cls: string; span: numbe
 
 for (const spec of LAYOUT) {
   const { panel, head, body } = makePanel(spec);
+  panelByTitle.set(spec.title, panel);
   if (spec.level) {
     const meta = document.createElement('span'); meta.className = 'meta';
     head.append(meta);
     head.classList.add('fold');
-    head.addEventListener('click', () => panel.classList.toggle('collapsed'));
+    head.addEventListener('click', () => { if (!NO_FOLD) panel.classList.toggle('collapsed'); });
     foldPanels.set(spec.level, { panel, meta });
   }
   if (spec.viz) {
@@ -428,7 +448,90 @@ function nameMacros(p: Preset | undefined): void {
 
 // ---- views -----------------------------------------------------------------
 
-const TABS: { id: string; name: string; hint: string }[] = [
+// In the plugin the repeated modules (three oscillators, four LFOs, four envelopes, the filter chain, the effects)
+// are a row of chips and the one you pick shown large, so the page stays two columns without a tab for each.
+const mGroups: { el: HTMLElement; tab: string }[] = [];
+const panelChip = new Map<HTMLElement, HTMLButtonElement>();
+if (IN_PLUGIN_LAYOUT) {
+  const make = (tab: string, titles: string[], labels: string[], cls: string) => {
+    const panels = titles.map((t) => panelByTitle.get(t)!).filter(Boolean);
+    if (panels.length === 0) return;
+    const el = document.createElement('div'); el.className = `mgroup ${cls}`; el.dataset.tab = tab;
+    const sel = document.createElement('div'); sel.className = 'msel';
+    el.append(sel);
+    panels[0].before(el);
+    const chips: HTMLButtonElement[] = [];
+    const pick = (n: number) => {
+      panels.forEach((p, i) => p.classList.toggle('sel', i === n));
+      chips.forEach((c, i) => c.classList.toggle('on', i === n));
+      redrawViz();
+    };
+    panels.forEach((p, i) => {
+      el.append(p);
+      const c = document.createElement('button'); c.type = 'button'; c.className = 'mchip pick'; c.textContent = labels[i] ?? titles[i];
+      c.style.setProperty('--accent', getComputedStyle(p).getPropertyValue('--accent') || '#fff');
+      c.addEventListener('click', () => pick(i));
+      chips.push(c); sel.append(c);
+      panelChip.set(p, c);
+    });
+    pick(0);
+    mGroups.push({ el, tab });
+  };
+  make('osc', ['osc 1', 'osc 2', 'osc 3'], ['osc 1', 'osc 2', 'osc 3'], 'g-osc');
+  make('mod', ['lfo 1', 'lfo 2', 'lfo 3', 'lfo 4'], ['lfo 1', 'lfo 2', 'lfo 3', 'lfo 4'], 'g-lfo');
+  make('mod', ['amp env', 'env 2', 'env 3', 'env 4'], ['amp', 'env 2', 'env 3', 'env 4'], 'g-env');
+  make('fx', ['insert A', 'filter 1', 'filter 2', 'insert B'], ['ins A', 'filter 1', 'filter 2', 'ins B'], 'g-flt');
+  make('fx', ['width', 'delay', 'reverb', 'squash'], ['width', 'delay', 'reverb', 'squash'], 'g-fx');
+  make('pat', ['step 1', 'step 2'], ['step 1', 'step 2'], 'g-step');
+}
+
+// Whether a module does anything right now, so the page can say so: the chips light, and an idle module is dimmed
+// and labelled. An LFO, envelope or stepper is idle until the matrix routes it somewhere.
+const routed = (src: number): boolean => {
+  for (let i = 1; i <= MATRIX_SLOTS; i++) if ((values[`m${i}Src`] | 0) === src && values[`m${i}Amt`] !== 0) return true;
+  return false;
+};
+const IDLE: Record<string, () => boolean> = {
+  'lfo 1': () => !routed(S_LFO1), 'lfo 2': () => !routed(S_LFO1 + 1), 'lfo 3': () => !routed(S_LFO1 + 2), 'lfo 4': () => !routed(S_LFO1 + 3),
+  'env 2': () => !routed(S_ENV1 + 1), 'env 3': () => !routed(S_ENV1 + 2), 'env 4': () => !routed(S_ENV1 + 3),
+  'step 1': () => !routed(S_STEP1), 'step 2': () => !routed(S_STEP1 + 1),
+  'arp': () => values.arpMode < 0.5,
+  'insert A': () => values.iAType < 0.5, 'insert B': () => values.iBType < 0.5,
+  'filter 1': () => values.f1Type < 0.5, 'filter 2': () => values.f2Type < 0.5,
+  'width': () => values.dimMix <= 0 && values.chMix <= 0, 'delay': () => values.dlMix <= 0,
+  'reverb': () => values.rvMix <= 0, 'squash': () => values.sqDepth <= 0,
+  'sub · noise': () => values.subLevel <= 0 && values.nzLevel <= 0,
+};
+const IDLE_WORD: Record<string, string> = {
+  'lfo 1': 'unused', 'lfo 2': 'unused', 'lfo 3': 'unused', 'lfo 4': 'unused', 'env 2': 'unused', 'env 3': 'unused', 'env 4': 'unused',
+  'step 1': 'unused', 'step 2': 'unused',
+};
+function refreshStates(): void {
+  if (!IN_PLUGIN_LAYOUT) return;
+  for (const [title, idle] of Object.entries(IDLE)) {
+    const panel = panelByTitle.get(title);
+    if (!panel) continue;
+    const off = idle();
+    panel.classList.toggle('off', off);
+    panelChip.get(panel)?.classList.toggle('off', off);
+    let tag = panel.querySelector<HTMLElement>(':scope > .head > .state');
+    if (!tag) { tag = document.createElement('span'); tag.className = 'state'; panel.querySelector(':scope > .head')!.append(tag); }
+    tag.textContent = off ? (IDLE_WORD[title] ?? 'off') : '';
+  }
+  // oscillators are already marked by refreshLevels; their chips follow
+  for (const title of ['osc 1', 'osc 2', 'osc 3']) {
+    const panel = panelByTitle.get(title);
+    if (panel) panelChip.get(panel)?.classList.toggle('off', panel.classList.contains('off'));
+  }
+}
+
+const TABS: { id: string; name: string; hint: string }[] = IN_PLUGIN_LAYOUT ? [
+  { id: 'osc', name: 'light', hint: 'osc · sub · voice' },
+  { id: 'mod', name: 'motion', hint: 'env · lfo' },
+  { id: 'pat', name: 'pattern', hint: 'arp · steps' },
+  { id: 'matrix', name: 'matrix', hint: '16 routes' },
+  { id: 'fx', name: 'refraction', hint: 'filters · fx' },
+] : [
   { id: 'osc', name: 'light', hint: 'three oscillators · sub · noise · voice' },
   { id: 'mod', name: 'motion', hint: 'envelopes · lfos · arp · steppers' },
   { id: 'matrix', name: 'matrix', hint: 'sixteen routes' },
@@ -450,6 +553,7 @@ function showTab(id: string): void {
   for (const [t, b] of tabButtons) b.classList.toggle('on', t === id);
   tabsEl.dataset.on = id;
   placeTabLight();
+  for (const g of mGroups) g.el.hidden = g.tab !== id;
   let i = 0;
   for (const el of panelsEl.querySelectorAll<HTMLElement>('.panel')) {
     const on = el.dataset.tab === id;
@@ -476,7 +580,7 @@ window.addEventListener('keydown', (e) => {
   const t = e.target as HTMLElement | null;
   if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
   if (e.key === '`') { e.preventDefault(); openBrowser(); return; }
-  const i = ['1', '2', '3', '4'].indexOf(e.key);
+  const i = TABS.findIndex((_, n) => String(n + 1) === e.key);
   if (i >= 0) showTab(TABS[i].id);
 });
 
@@ -540,6 +644,7 @@ function applyValues(next: ParamValues, fromHost = false): void {
   refreshLevels(true);
   refreshSteps();
   refreshMods();
+  refreshStates();
   setMaster(values.volume);
   redrawViz();
 }
@@ -760,6 +865,8 @@ $('#copy').addEventListener('click', async () => {
 
 let startTab = 'osc';
 try { startTab = localStorage.getItem('prism.tab') ?? startTab; } catch { /* ignore */ }
+refreshLevels();
+refreshStates();
 showTab(TABS.some((t) => t.id === startTab) ? startTab : 'osc');
 
 if (!plugin) {
@@ -798,13 +905,21 @@ if (!plugin) {
 
 // ---- live: the newest voice's positions, envelopes, LFOs, steps ---------------
 
+// in the plugin the readout keeps one width however many digits the numbers have (padded, in a fixed box: style.css),
+// and the host's tempo has its own fixed box beside the stop button; a browser tab shows the plain text as before
+const fixedStats = document.documentElement.classList.contains('in-plugin');
+const pad = (n: number, w: number): string => (fixedStats ? String(n).padStart(w, '\u00a0') : String(n));
 const stats = $('#stats');
+const tempo = document.createElement('span');
+tempo.id = 'tempo'; tempo.className = 'muted';
+if (fixedStats) { $('#panic').before(tempo); stats.textContent = `${pad(0, 2)} voices · ${pad(0, 3)}% dsp`; }
 let lastPeak = 0;
 let wasPlaying = false;
 const liveVizzes = vizzes.filter((v) => LIVE_VIZ.has(v.kind));
 synth.onStats = (s: WorkletStats & { tempo?: number }) => {
-  const host = s.tempo ? ` · ${Math.round(s.tempo)} bpm` : '';
-  stats.textContent = `${s.voices} voices · ${Math.round(s.load * 100)}% dsp${host}`;
+  tempo.textContent = s.tempo ? `${pad(Math.round(s.tempo), 3)} bpm` : '';
+  const host = s.tempo && !fixedStats ? ` · ${Math.round(s.tempo)} bpm` : '';
+  stats.textContent = `${pad(s.voices, 2)} voices · ${pad(Math.round(s.load * 100), 3)}% dsp${host}`;
   const peak = Math.max(s.peakL, s.peakR);
   lastPeak = peak;
   scope.update(s.scope, peak);
@@ -848,6 +963,7 @@ if (plugin) {
     refreshLevels();
     refreshSteps();
     refreshMods();
+    refreshStates();
     redrawViz();
   };
   // the host's MIDI lights the keys and the field, like a keyboard on the page would

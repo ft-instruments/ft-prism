@@ -1,8 +1,7 @@
 # ft-prism
 
-**PRISM** is a spectral synth, and the spectrum is the instrument. In the family,
-`ft-mycelia` models circuits, `ft-vector` digital systems and `ft-siege`
-physical bodies. Prism holds a sound as its partials (amplitudes and phases)
+**PRISM** is a spectral synth, and the spectrum is the instrument. Prism
+holds a sound as its partials (amplitudes and phases)
 and lets you stretch, shift, smear, fold and refract them. The modulation
 system is first-class, because a spectrum that doesn't move is a preset, not
 an instrument. It is Massive-inspired (wavetable position as the main
@@ -134,7 +133,7 @@ sounds lush.
 - **Macros:** eight, always on screen. Each preset names its macros.
 - **Playing sources:** velocity, key, mod wheel, pressure, bend and a
   per-note random.
-- **Arpeggiator:** Mycelia's arp, with up, down, up/dn, random, played and
+- **Arpeggiator:** up, down, up/dn, random, played and
   chord modes, 1/2 to 1/32 including triplets, 1–4 octaves, gate, swing and
   hold.
 - **Drift:** each voice wanders a little in pitch (up to ±14 cents) and in
@@ -146,7 +145,7 @@ sounds lush.
   detune, pan) are the main gesture. The five on the master effects
   (dimension, chorus, delay, reverb, squash) hear only the sources every
   voice shares: macros, wheel, pressure and bend.
-- **Family invariant:** every amount defaults to 0, and `Voice.matrix()`
+- **Zero-amount invariant:** every amount defaults to 0, and `Voice.matrix()`
   returns before touching anything when nothing is routed. `render hash`
   points every unused slot of every preset somewhere at amount 0 and proves
   the render is bit-identical.
@@ -164,8 +163,8 @@ sounds lush.
 - **Filters:** two clean topology-preserving SVFs (lp 12, lp 24, bp, hp,
   notch), plus a **vowel** filter (three formant band-passes; the cutoff
   walks a-e-i-o-u) and ± **combs**. Each has drive, key track and env 2.
-  They run serial, or parallel with per-oscillator routing. Mycelia owns the
-  saturating ladder; Prism's filters are deliberately clean.
+  They run serial, or parallel with per-oscillator routing. The filters are
+  deliberately clean.
 - **Master:**
   - **Dimension:** a Massive-style expander that widens the image and leaves
     the mono sum untouched.
@@ -173,7 +172,7 @@ sounds lush.
   - **Delay:** ping-pong and damping, plus **spiral**, which puts a
     frequency shifter in the feedback loop so every repeat climbs or falls
     out of tune.
-  - **Ice hall:** Mycelia's FDN hall, re-tuned brighter, with shimmer.
+  - **Ice hall:** an FDN hall, tuned bright, with shimmer.
   - **Warmth:** a gentle tape-like stage straight after the voices: soft
     saturation, and a top that darkens as it is pushed.
   - **EQ:** low and high shelves.
@@ -182,8 +181,8 @@ sounds lush.
 
 ## Presets
 
-There are 172 presets, grouped the way Mycelia's are. The names are Prism's
-own (light, glass, ice, sky).
+There are 172 presets, grouped by role. The names are drawn from light,
+glass, ice and sky.
 
 | category | presets |
 |---|---|
@@ -230,8 +229,7 @@ crosses it and splits into a faint spectrum at the first shard it meets.
 Every note fires a new beam in from the left (higher notes enter higher, the
 arp's notes too). Where it strikes glass it disperses into rays of colour,
 red → violet, that fan out and fade, and motes of light glitter with the
-output level. Mycelia's background is a network that carries light; Prism's
-breaks it into colour.
+output level.
 
 Each oscillator draws its table as a stack of frames receding into the
 glass. The frame being played is lit white (it follows modulation live), and
@@ -265,8 +263,7 @@ volume and preset browser are always in reach.
 ## The plugin (VST3 / AU)
 
 `plugin/` builds PRISM as a **VST3** (macOS and Linux), an **AU** (macOS,
-for Logic) and a standalone app, with JUCE 8 (fetched by CMake), exactly as
-Mycelia's does.
+for Logic) and a standalone app, with JUCE 8 (fetched by CMake).
 
 ```
 plugin/build.sh      # web UI + params header + plugins, installed for this user
@@ -274,7 +271,15 @@ plugin/build.sh      # web UI + params header + plugins, installed for this user
 
 It installs to `~/Library/Audio/Plug-Ins/{VST3,Components}` on macOS and
 `~/.vst3` on Linux. On macOS check the AU with `auval -v aumu Prsm Ftft`.
-On Linux it needs the same packages as Mycelia's (see its README).
+On Linux it needs the usual JUCE packages plus WebKitGTK, e.g. on Debian /
+Ubuntu:
+
+```
+sudo apt install build-essential cmake ninja-build nodejs npm pkg-config \
+  libasound2-dev libfreetype-dev libfontconfig1-dev libx11-dev libxcomposite-dev \
+  libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+  libgtk-3-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev
+```
 
 - **DSP**: `plugin/Source/dsp/` is a line-for-line C++ port of `src/dsp/`.
   Buffers the TS keeps in `Float32Array`s are `float`, everything else is
@@ -300,8 +305,10 @@ On Linux it needs the same packages as Mycelia's (see its README).
   (positions, LFOs, steps, squash). Your saved presets, with their macro
   names, are a file shared by every instance
   (`~/Library/Application Support/FT/Prism/` or `~/.config/FT/Prism/`).
-  The page is scaled to the window's width and scrolls when the window is
-  shorter than the tab. `node scripts/check-plugin-ui.ts` checks the page in
+  The page is laid out at 1360 × 850 (16:10) and scaled to fit the window,
+  with no scrolling; a new window opens as large as fits the screen, up to
+  that size. Oscillators, LFOs, envelopes and effects are picked from chip
+  bars, so the plugin has five tabs. `node scripts/check-plugin-ui.ts` checks the page in
   plugin mode against a fake bridge.
 - **Clock**: the host's tempo replaces the tempo knob, and while the host
   plays, its song position drives the free-running synced LFOs and the free
@@ -319,12 +326,8 @@ run the null test.
   the matrix view.
 - **Fewer matrix slots than proposed.** It has 16 slots, not the 32 the
   proposal suggested, which so far is more than any preset uses.
-- **The plugin page scrolls.** The light tab lays out 1525 px tall, so
-  inside the plugin the page is scaled to the window's *width* and scrolls
-  vertically (Mycelia's scales to fit both ways; its tabs are shorter). The
-  keyboard is at the bottom of the scroll.
 - In the plugin, the arp follows the host's tempo but not its grid (a step
-  starts when you play, not on the beat), as in Mycelia.
+  starts when you play, not on the beat).
 - **Two presets null only to −73 / −83 dB** against the C++ engine (see the
   plugin section): Glitch Steps and Hologram.
 

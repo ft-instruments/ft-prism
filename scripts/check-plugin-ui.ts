@@ -126,7 +126,7 @@ async function main(): Promise<void> {
   await evaluate(`window.__toPage({ type: 'notes', list: [[64, 100, 0], [67, 90, 2]] });
     window.__toPage({ type: 'stats', voices: 3, load: 0.042, peakL: 0.5, peakR: 0.4, tempo: 122, scope: Array.from({ length: 1024 }, (_, i) => Math.sin(i / 20) * 0.5), display: Array.from({ length: 24 }, () => 0.3) })`);
   await sleep(100);
-  check(String(await evaluate("document.querySelector('#stats').textContent")).includes('122 bpm'), 'the host tempo shows in the status line');
+  check(String(await evaluate("document.querySelector('#tempo')?.textContent")).includes('122 bpm'), 'the host tempo shows in the status line, beside the stop button');
 
   // 8. saving a sound goes to the plugin's file
   await evaluate('document.querySelector("#save").click()');
@@ -149,21 +149,18 @@ async function main(): Promise<void> {
   writeFileSync('out/screenshot-plugin.png', Buffer.from(shot.data, 'base64'));
   console.log('wrote out/screenshot-plugin.png');
 
-  // 10. a laptop-sized window: the page fills its width, and scrolls exactly as far as the tab goes
+  // 10. a laptop-sized window: every tab is shown whole, scaled to fit, and the keyboard is in view
   await send('Emulation.setDeviceMetricsOverride', { width: 1296, height: 740, deviceScaleFactor: 1, mobile: false });
   const tabs = await evaluate("document.querySelectorAll('#tabs .tab').length") as number;
   for (let t = tabs - 1; t >= 0; t--) {
     await evaluate(`document.querySelectorAll('#tabs .tab')[${t}].click(); scrollTo(0, 0)`);
     await sleep(500);
-    const [right, bottom, w, scrollH] = await evaluate(`(() => { const r = document.querySelector('#app').getBoundingClientRect();
-      return [r.right, r.bottom, innerWidth, document.scrollingElement.scrollHeight]; })()`) as number[];
-    check(Math.abs(right - w) < 1 && Math.abs(scrollH - Math.max(740, bottom)) < 2,
-      `at 1296x740 tab ${t + 1} fills the width (${Math.round(right)} of ${w}) and scrolls to its end (${Math.round(scrollH)} for ${Math.round(bottom)})`);
+    const [right, bottom, w, h] = await evaluate(`(() => { const r = document.querySelector('#app').getBoundingClientRect();
+      return [r.right, r.bottom, innerWidth, innerHeight]; })()`) as number[];
+    check(right <= w + 1 && bottom <= h + 1, `at 1296x740 tab ${t + 1} fits the window (${Math.round(right)}x${Math.round(bottom)} in ${w}x${h})`);
   }
-  await evaluate('scrollTo(0, 1e6)');
-  await sleep(200);
   const kb = await evaluate("(() => { const r = document.querySelector('#keyboard').getBoundingClientRect(); return [r.top, r.bottom, innerHeight]; })()") as number[];
-  check(kb[0] >= 0 && kb[1] <= kb[2] + 1, `scrolled to the bottom, the keyboard is in view (${Math.round(kb[0])}–${Math.round(kb[1])} of ${kb[2]})`);
+  check(kb[0] >= 0 && kb[1] <= kb[2] + 1, `the keyboard is in view (${Math.round(kb[0])}–${Math.round(kb[1])} of ${kb[2]})`);
   const small = await send('Page.captureScreenshot', { format: 'png' }) as { data: string };
   writeFileSync('out/screenshot-plugin-small.png', Buffer.from(small.data, 'base64'));
   console.log('wrote out/screenshot-plugin-small.png');
